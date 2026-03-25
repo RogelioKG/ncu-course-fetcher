@@ -1,0 +1,29 @@
+{
+  "name": "ncu-course-fetcher",
+  "type": "module",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fetch and synchronize course data from National Central University.",
+  "author": "RogelioKG <rogeliokg0813@gmail.com>",
+  "license": "AGPL-3.0",
+  "scripts": {
+    "lint": "eslint",
+    "lint:fix": "eslint --fix",
+    "update": "node --env-file-if-exists=.env --import tsx src/scripts/update.ts"
+  },
+  "dependencies": {
+    "cheerio": "^1.0.0-rc.5",
+    "fast-xml-parser": "^5.5.8",
+    "he": "^1.2.0",
+    "pino": "^10.3.1",
+    "pino-pretty": "^13.1.3"
+  },
+  "devDependencies": {
+    "@antfu/eslint-config": "^7.7.3",
+    "@types/he": "^1.2.3",
+    "@types/node": "^25.5.0",
+    "eslint": "^10.1.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}

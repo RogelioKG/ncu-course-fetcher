@@ -1,0 +1,6 @@
+.agents/
+.vscode/
+dist/
+data/
+node_modules/
+.env
