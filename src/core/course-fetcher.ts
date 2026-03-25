@@ -1,9 +1,12 @@
 import type { Course, CourseData, CourseType, Department, RawCourse } from '../types'
+import pLimit from 'p-limit'
 import { version } from '../../package.json'
 import { fetchCollegesDepartmentsAndSemester, fetchCourseExtras, fetchRawCourses } from '../helpers/fetch'
 import { loggers } from '../helpers/logger'
 
 export class CourseFetcher {
+  private limit = pLimit(10)
+
   async fetch(): Promise<CourseData> {
     const { colleges, departments, semester } = await this.fetchCollegesDepartmentsAndSemester()
 
@@ -38,12 +41,14 @@ export class CourseFetcher {
 
   private async fetchAllRawCourses(departments: Department[]): Promise<RawCourse[]> {
     const rawCoursesResults = await Promise.all(
-      departments.map(async (department) => {
-        loggers.course.info(`Start fetching raw courses for ${department.departmentId}...`)
-        const courses = await fetchRawCourses(department.departmentId, department.collegeId)
-        loggers.course.info(`OK, ${courses.length} raw courses fetched for ${department.departmentId}`)
-        return courses
-      }),
+      departments.map(department =>
+        this.limit(async () => {
+          loggers.course.info(`Start fetching raw courses for ${department.departmentId}...`)
+          const courses = await fetchRawCourses(department.departmentId, department.collegeId)
+          loggers.course.info(`OK, ${courses.length} raw courses fetched for ${department.departmentId}`)
+          return courses
+        }),
+      ),
     )
 
     return rawCoursesResults.flat()

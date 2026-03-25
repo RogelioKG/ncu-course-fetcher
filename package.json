@@ -1,7 +1,7 @@
 {
   "name": "ncu-course-fetcher",
   "type": "module",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "private": true,
   "description": "Fetch and synchronize course data from National Central University.",
   "author": "RogelioKG <rogeliokg0813@gmail.com>",
@@ -17,6 +17,7 @@
     "cheerio": "^1.0.0-rc.5",
     "fast-xml-parser": "^5.5.8",
     "he": "^1.2.0",
+    "p-limit": "^7.3.0",
     "pino": "^10.3.1",
     "pino-pretty": "^13.1.3"
   },
