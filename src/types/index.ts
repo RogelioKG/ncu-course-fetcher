@@ -1,11 +1,11 @@
-export type PasswordCard = 'ALL' | 'NONE' | 'OPTIONAL'
+export type PasswordCardRequirement = 'ALL' | 'NONE' | 'OPTIONAL'
 export type CourseType = 'REQUIRED' | 'ELECTIVE'
-export type LoggerNamespace = 'core' | 'extras' | 'courses' | 'fetch' | 'update'
+export type LoggerNamespace = 'extra' | 'dept' | 'course' | 'network' | 'merge' | 'sync'
 
 export interface Department {
   departmentId: string
   departmentName: string
-  collegeId?: string
+  collegeId: string
 }
 
 export interface College {
@@ -13,12 +13,12 @@ export interface College {
   collegeName: string
 }
 
-export interface CourseBase {
+export interface RawCourse {
   serialNo: number
   classNo: string
   title: string
   credit: number
-  passwordCard: PasswordCard
+  passwordCard: PasswordCardRequirement
   teachers: string[]
   classTimes: string[]
   limitCnt: number | null
@@ -33,25 +33,21 @@ export interface CourseExtra {
   courseType: CourseType
 }
 
-export interface OutputCourse {
-  serialNo: number
-  classNo: string
-  title: string
-  credit: number
-  passwordCard: PasswordCard
-  teachers: string[]
-  classTimes: string[]
-  limitCnt: number | null
-  admitCnt: number
-  waitCnt: number
-  collegeIds: string[]
-  departmentIds: string[]
-  courseType?: CourseType
-}
+export type Course
+  = Omit<RawCourse, 'collegeId' | 'departmentId'> & CourseExtra & {
+    collegeIds: string[]
+    departmentIds: string[]
+  }
 
-export interface MergedDataOutput {
-  colleges: College[]
-  departments: Department[]
-  courses: OutputCourse[]
-  LAST_UPDATE_TIME: string
+export interface CourseData {
+  meta: {
+    version: string
+    updatedAt: string
+  }
+  data: {
+    semester: string
+    colleges: College[]
+    departments: Department[]
+    courses: Course[]
+  }
 }

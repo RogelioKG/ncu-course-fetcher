@@ -1,0 +1,191 @@
+{
+  "$ref": "#/definitions/CourseData",
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "definitions": {
+    "College": {
+      "additionalProperties": false,
+      "properties": {
+        "collegeId": {
+          "type": "string"
+        },
+        "collegeName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "collegeId",
+        "collegeName"
+      ],
+      "type": "object"
+    },
+    "Course": {
+      "additionalProperties": false,
+      "properties": {
+        "admitCnt": {
+          "type": "number"
+        },
+        "classNo": {
+          "type": "string"
+        },
+        "classTimes": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "collegeIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "courseType": {
+          "$ref": "#/definitions/CourseType"
+        },
+        "credit": {
+          "type": "number"
+        },
+        "departmentIds": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "limitCnt": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "passwordCard": {
+          "$ref": "#/definitions/PasswordCardRequirement"
+        },
+        "serialNo": {
+          "type": "number"
+        },
+        "teachers": {
+          "items": {
+            "type": "string"
+          },
+          "type": "array"
+        },
+        "title": {
+          "type": "string"
+        },
+        "waitCnt": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "admitCnt",
+        "classNo",
+        "classTimes",
+        "collegeIds",
+        "courseType",
+        "credit",
+        "departmentIds",
+        "limitCnt",
+        "passwordCard",
+        "serialNo",
+        "teachers",
+        "title",
+        "waitCnt"
+      ],
+      "type": "object"
+    },
+    "CourseData": {
+      "additionalProperties": false,
+      "properties": {
+        "data": {
+          "additionalProperties": false,
+          "properties": {
+            "colleges": {
+              "items": {
+                "$ref": "#/definitions/College"
+              },
+              "type": "array"
+            },
+            "courses": {
+              "items": {
+                "$ref": "#/definitions/Course"
+              },
+              "type": "array"
+            },
+            "departments": {
+              "items": {
+                "$ref": "#/definitions/Department"
+              },
+              "type": "array"
+            },
+            "semester": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "semester",
+            "colleges",
+            "departments",
+            "courses"
+          ],
+          "type": "object"
+        },
+        "meta": {
+          "additionalProperties": false,
+          "properties": {
+            "updatedAt": {
+              "type": "string"
+            },
+            "version": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "version",
+            "updatedAt"
+          ],
+          "type": "object"
+        }
+      },
+      "required": [
+        "meta",
+        "data"
+      ],
+      "type": "object"
+    },
+    "CourseType": {
+      "enum": [
+        "REQUIRED",
+        "ELECTIVE"
+      ],
+      "type": "string"
+    },
+    "Department": {
+      "additionalProperties": false,
+      "properties": {
+        "collegeId": {
+          "type": "string"
+        },
+        "departmentId": {
+          "type": "string"
+        },
+        "departmentName": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "departmentId",
+        "departmentName",
+        "collegeId"
+      ],
+      "type": "object"
+    },
+    "PasswordCardRequirement": {
+      "enum": [
+        "ALL",
+        "NONE",
+        "OPTIONAL"
+      ],
+      "type": "string"
+    }
+  }
+}

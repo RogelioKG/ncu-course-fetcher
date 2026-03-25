@@ -33,3 +33,5 @@ jobs:
         run: pnpm run update
         env:
           API_TOKEN: ${{ secrets.API_TOKEN }}
+          API_URL: ${{ secrets.API_URL }}
+          LOG_LEVEL: ${{ vars.LOG_LEVEL }}

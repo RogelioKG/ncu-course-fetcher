@@ -1,0 +1,18 @@
+#!/bin/sh
+set -e
+
+G='\033[1;32m'
+B='\033[1;34m'
+Y='\033[1;33m'
+N='\033[0m'
+
+printf "${G}🚀 [Pre-commit] Starting...${N}\n"
+
+if git diff --cached --name-only | grep -qE "src/|package.json|tsconfig.json|eslint.config.mjs"; then
+    printf "${B}🔄 [Frontend] Linting...${N}\n"
+    pnpm lint:fix && git add -u . && pnpm lint
+else
+    printf "${Y}⏭️  No relevant changes, skipping...${N}\n"
+fi
+
+printf "${G}✅ All checks passed!${N}\n"

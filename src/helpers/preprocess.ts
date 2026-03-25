@@ -1,10 +1,11 @@
-import type { College, CourseBase, CourseExtra, CourseType, Department, PasswordCard } from '../types'
+import type { College, CourseExtra, CourseType, Department, PasswordCardRequirement, RawCourse } from '../types'
 import * as cheerio from 'cheerio'
 import { XMLParser } from 'fast-xml-parser'
 import he from 'he'
 
 const DEPT_NAME_REGEX = /\(\d+\)$/
 const TEACHER_SPLIT_REGEX = /,\s*/
+const SEMESTER_REGEX = /(\d{3})(\d)/
 
 const xmlParser = new XMLParser({
   ignoreAttributes: false,
@@ -13,8 +14,12 @@ const xmlParser = new XMLParser({
   attributeValueProcessor: (attrName, attrValue) => he.decode(attrValue),
 })
 
-export function preprocessCollegesAndDepartments(html: string): { colleges: College[], departments: Department[] } {
+export function preprocessCollegesDepartmentsAndSemester(html: string): { colleges: College[], departments: Department[], semester: string } {
   const $ = cheerio.load(html)
+
+  const bannerText = $('.intro_banner').text() || ''
+  const semesterMatch = bannerText.match(SEMESTER_REGEX)
+  const semester = semesterMatch ? `${semesterMatch[1]}-${semesterMatch[2]}` : 'Unknown'
 
   const colleges: College[] = []
   const departments: Department[] = []
@@ -33,10 +38,10 @@ export function preprocessCollegesAndDepartments(html: string): { colleges: Coll
     })
   })
 
-  return { colleges, departments }
+  return { colleges, departments, semester }
 }
 
-export function preprocessCourseBases(xml: string, departmentId: string, collegeId: string): CourseBase[] {
+export function preprocessRawCourses(xml: string, departmentId: string, collegeId: string): RawCourse[] {
   const data = xmlParser.parse(xml)
   const coursesData = [].concat(data?.Courses?.Course ?? [])
 
@@ -49,9 +54,9 @@ export function preprocessCourseBases(xml: string, departmentId: string, college
       classNo,
       title: String(item.Title || '').trim(),
       credit: Number(item.credit || 0),
-      passwordCard: String(item.passwordCard || '').trim() as PasswordCard,
-      teachers: deflateTeachers(String(item.Teacher || '')),
-      classTimes: deflateClassTime(String(item.ClassTime || '')),
+      passwordCard: String(item.passwordCard || '').trim() as PasswordCardRequirement,
+      teachers: parseTeachers(String(item.Teacher || '')),
+      classTimes: parseClassTimes(String(item.ClassTime || '')),
       limitCnt: Number(item.limitCnt) || null,
       admitCnt: Number(item.admitCnt || 0),
       waitCnt: Number(item.waitCnt || 0),
@@ -61,7 +66,7 @@ export function preprocessCourseBases(xml: string, departmentId: string, college
   })
 }
 
-export function preprocessCourseExtrasPage(html: string): { courseExtras: CourseExtra[], hasNextPage: boolean } {
+export function preprocessCourseExtras(html: string): { courseExtras: CourseExtra[], hasNextPage: boolean } {
   const $ = cheerio.load(html)
 
   const courseExtras = $('#item tbody tr').get().map((tr) => {
@@ -71,7 +76,7 @@ export function preprocessCourseExtrasPage(html: string): { courseExtras: Course
 
     return {
       serialNo: Number(serialNo),
-      courseType: normalizeCourseType(courseType),
+      courseType: parseCourseType(courseType),
     }
   })
 
@@ -80,7 +85,7 @@ export function preprocessCourseExtrasPage(html: string): { courseExtras: Course
   return { courseExtras, hasNextPage }
 }
 
-function normalizeCourseType(courseType: string): CourseType {
+function parseCourseType(courseType: string): CourseType {
   const trimmed = courseType.trim()
   if (trimmed === '必修')
     return 'REQUIRED'
@@ -89,11 +94,11 @@ function normalizeCourseType(courseType: string): CourseType {
   throw new Error(`Unexpected course type encountered: "${trimmed}"`)
 }
 
-function deflateTeachers(teachersStr: string): string[] {
+function parseTeachers(teachersStr: string): string[] {
   return teachersStr ? teachersStr.split(TEACHER_SPLIT_REGEX).filter(Boolean) : []
 }
 
-function deflateClassTime(classTimesStr: string): string[] {
+function parseClassTimes(classTimesStr: string): string[] {
   return classTimesStr
     ? classTimesStr.split(',').filter(Boolean).map(t => t.length >= 2 ? `${t[0]}-${t.slice(1)}` : t)
     : []
